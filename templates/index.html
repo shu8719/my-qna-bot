@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>AIチャットボット</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .chat-container { width: 400px; height: 600px; background-color: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+        .chat-header { background-color: #0078D4; color: white; padding: 15px; border-top-left-radius: 8px; border-top-right-radius: 8px; text-align: center; }
+        .chatbox { flex-grow: 1; padding: 20px; overflow-y: auto; }
+        .message { margin-bottom: 15px; }
+        .message p { padding: 10px 15px; border-radius: 18px; max-width: 80%; line-height: 1.4; }
+        .user p { background-color: #0078D4; color: white; float: right; }
+        .ai p { background-color: #e9e9eb; color: #333; float: left; }
+        .input-area { display: flex; padding: 10px; border-top: 1px solid #ddd; }
+        #userInput { flex-grow: 1; border: 1px solid #ccc; border-radius: 18px; padding: 10px; font-size: 14px; }
+        #userInput:focus { outline: none; border-color: #0078D4; }
+        button { background-color: #0078D4; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; margin-left: 10px; cursor: pointer; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header"><h2>AIチャットボット</h2></div>
+        <div class="chatbox" id="chatbox">
+            <div class="message ai"><p>こんにちは！何か質問はありますか？</p></div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="メッセージを入力...">
+            <button onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript (ブラウザで動くプログラム)
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const chatbox = document.getElementById('chatbox');
+            const question = userInput.value.trim();
+
+            if (!question) return;
+
+            // 自分の質問を画面に追加
+            chatbox.innerHTML += `<div class="message user"><p>${question}</p></div>`;
+            userInput.value = '';
+            chatbox.scrollTop = chatbox.scrollHeight;
+
+            // 裏方のプログラム(/ask)に質問を送信する
+            const response = await fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: question })
+            });
+
+            const data = await response.json();
+            const answer = data.answer || data.error;
+
+            // AIの答えを画面に追加
+            chatbox.innerHTML += `<div class="message ai"><p>${answer}</p></div>`;
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        document.getElementById('userInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
