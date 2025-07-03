@@ -37,7 +37,7 @@ def ask_question():
 
     # Azure AIに質問を送信し、答えをもらう
     try:
-        response = requests.post(AZURE_PREDICTION_URL, headers=headers, data=json.dumps(payload))
+        response = requests.post(AZURE_PREDICTION_URL, headers=headers, data=json.dumps(payload), verify=False)
         response.raise_for_status()
 
         answer_data = response.json()
